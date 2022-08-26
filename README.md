@@ -1,1 +1,4 @@
-# GEN-ALGO
+# Evolutionary computation: Genetic Algorithms
+## Explanation [here]()
+Implementation of the solution of the needle in the haystack by general approach of genetic algorithms, using variation on mutation, crossover, partition and place of partition
+![](https://github.com/albertoHdzE/GEN-ALGO/blob/main/ag.jpg)
