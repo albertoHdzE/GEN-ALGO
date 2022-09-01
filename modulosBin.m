@@ -1,71 +1,44 @@
-% LIMITES
-bounds = [-10 10];
-% TAMAÑO DEL PASO
-n=10;
-% NUMERO DE ITERACIONES
-numits=100;
-% MUTACIONES POR ITERACION
-nummut = 1;
+function f=modulosBin(x, len)
 
-f=@multipeak;
-%ezplot(f,[-10 10])
-%pause
+    function g=evaluateGene(gene)
+        if size(gene,2) == sum(gene)
+            g = 2;
+        end
+        if size(gene,2) > sum(gene)
+            g = 1;
+        end
+        %disp(['gene:' num2str(gene) ' size:' num2str(size(gene,2)) ' sum:' num2str(sum(gene)) ' g:' num2str(g)])
+    end
 
-blength = bounds(2)-bounds(1);
+    function s=splitChromoAsGenes(x, len)
+        h=[];
+        numElem = size(x, 2)/len;
+        for i=1:numElem
+            start = ((i*len)-len)+1;
+            ending = (start + len) - 1;
+            elem = x(start:ending);
+            h(end+1, :) = elem;
+        end
+        s=h;
+    end
 
-%POBLACION INICIAL
-pop = rand(1,n)*blength + BOUNDS(1);
-
-for it=1:numits
-	for i=1:n, fpop(i) = feval(f, pop(i)); end
-	maxf(it) = max(fpop);
-	meanf(it) = mean(fpop);
-	m=min(fpop);
-	fpop=fpop-m;
-	cpop(1)=fpop(1);
-	for 1=2:n, cpop(i) = cpop(i-1) + fpop(i); end
-	total_fitness = cpop(n);
-	for i=1:n
-		p=rand*total_fitness;
-		j=find(cpop-p>0);
-		if isempty(j)
-			j=n;
-		else
-			j=j(1);
-		end
-		parent(i)=pop(j);
-	end
-	%pop, fpop, parent, pause
-
-	%REPRODUCTION
-	%Parentss 2i-1 and 2i make two new children
-
-	% 2i-1 and 2i crossover
-	%use arithmetic crossover
-	for i=1:2:n
-		r=rand;
-		pop(i) = r*parent(i) + (1-r)*parent(i+1);
-		pop(i+1) = (1-r)*parent(i) + r*parente(i+1);
-	end
-
-	%MUTATION
-	%USE UNIFORM MUTATION
-	for 1=1:nummut
-		pop(ceil(rand*n)) = bounds(1) + rand*blength;
-	end
+    function e=evaluateChromo(x,len)
+        elements = splitChromoAsGenes(x, len);
+        e = 0;
+        for i=1:size(elements)
+            value = evaluateGene(elements(i,:));
+            e = e + value;
+        end
+    end
+    
+    function p=evaluatePopulation(x, len)
+        out=[];
+        numChromo = size(x,1);
+        for i=1:numChromo
+            oneChromo = x(i,:);
+            out(end+1,:)=evaluateChromo(oneChromo, len);
+        end
+        p=out;
+    end
+f=evaluatePopulation(x,len);
 end
-
-pop
-for i=1:n, fpop(i) = feval(f, pop(i)); end
-
-fpop
-
-close all
-ezplot(@multipeak, [-10 10])
-hold on
-	[y, xind]max(fpop);
-plot(pop(xind),y,'ro')
-
-figure, plot(maxf), hold on, plot(meanf,'g');
-xlabel('Variable x');
-ylabel('Max and Mean of the function');
